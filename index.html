@@ -325,6 +325,47 @@ async function run() {
 }
 
 run();
+
+// ── self-destruct ─────────────────────────────────────────────────────────────
+
+function msUntilMidnight() {
+  const now = new Date();
+  const midnight = new Date(now);
+  midnight.setHours(24, 0, 0, 0);
+  return midnight - now;
+}
+
+function selfDestruct() {
+  const content = document.getElementById('output');
+  const lines = [
+    { text: '', delay: 0 },
+    { text: '$ sudo birthday --self-destruct', cls: 'warning', delay: 200 },
+    { text: '', delay: 700 },
+    { text: '[WARNING] This message was valid for one day only.', cls: 'warning', delay: 900 },
+    { text: '[WARNING] Initiating self-destruct sequence...', cls: 'warning', delay: 1400 },
+    { text: '', delay: 1900 },
+    { text: '3...', cls: 'hp', delay: 2100 },
+    { text: '2...', cls: 'hp', delay: 2800 },
+    { text: '1...', cls: 'hp', delay: 3500 },
+    { text: '', delay: 4000 },
+    { text: '[OK] Memory wiped. Hope it was a good one, Alex. 🎂', cls: 'success', delay: 4200 },
+    { text: '[OK] See you next year.', cls: 'comment', delay: 4900 },
+  ];
+
+  lines.forEach(({ text, cls, delay }) => {
+    setTimeout(() => {
+      addLine(text, cls || '');
+      output.scrollTop = output.scrollHeight;
+    }, delay);
+  });
+
+  // After animation: blank the page
+  setTimeout(() => {
+    document.body.innerHTML = '<div style="background:#0d1117;height:100vh;display:flex;align-items:center;justify-content:center;font-family:monospace;color:#8b949e;font-size:14px;">// nothing to see here</div>';
+  }, 7000);
+}
+
+setTimeout(selfDestruct, msUntilMidnight());
 </script>
 </body>
 </html>
