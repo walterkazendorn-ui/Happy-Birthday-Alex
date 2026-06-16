@@ -107,6 +107,19 @@
     line-height: 1.4;
     margin: 4px 0;
   }
+  .countdown-bar {
+    text-align: center;
+    padding: 10px 16px 14px;
+    font-size: 12px;
+    color: #8b949e;
+    border-top: 1px solid #30363d;
+    letter-spacing: 0.05em;
+  }
+
+  .countdown-bar span {
+    color: #f87171;
+    font-weight: 700;
+  }
 </style>
 </head>
 <body>
@@ -118,6 +131,9 @@
     <div class="win-btn close">&#x2715;</div>
   </div>
   <div class="content" id="output"></div>
+  <div class="countdown-bar" id="countdown-bar">
+    ⏳ This message self-destructs in <span id="countdown-timer">--:--:--</span>
+  </div>
 </div>
 
 <script>
@@ -365,7 +381,27 @@ function selfDestruct() {
   }, 7000);
 }
 
-setTimeout(selfDestruct, msUntilMidnight());
+// Live countdown display
+function updateCountdown() {
+  const ms = msUntilMidnight();
+  if (ms <= 0) return;
+  const totalSec = Math.floor(ms / 1000);
+  const h = String(Math.floor(totalSec / 3600)).padStart(2, '0');
+  const m = String(Math.floor((totalSec % 3600) / 60)).padStart(2, '0');
+  const s = String(totalSec % 60).padStart(2, '0');
+  const el = document.getElementById('countdown-timer');
+  if (el) el.textContent = h + ':' + m + ':' + s;
+}
+
+updateCountdown();
+const countdownInterval = setInterval(updateCountdown, 1000);
+
+setTimeout(function() {
+  clearInterval(countdownInterval);
+  const bar = document.getElementById('countdown-bar');
+  if (bar) bar.style.display = 'none';
+  selfDestruct();
+}, msUntilMidnight());
 </script>
 </body>
 </html>
