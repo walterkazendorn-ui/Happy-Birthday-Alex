@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Happy Birthday, Alex</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0d1117;
+    color: #58a6ff;
+    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    gap: 20px;
+  }
+
+  .terminal {
+    width: 100%;
+    max-width: 820px;
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0 40px rgba(88, 166, 255, 0.08);
+  }
+
+  .titlebar {
+    background: #21262d;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px solid #30363d;
+  }
+
+  .titlebar-text { color: #8b949e; font-size: 12px; flex: 1; text-align: center; }
+
+  .win-btn {
+    width: 46px; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; color: #8b949e;
+    cursor: default;
+    transition: background 0.15s;
+    margin: -12px 0;
+  }
+  .win-btn:hover { background: #30363d; }
+  .win-btn.close:hover { background: #e81123; color: #fff; }
+
+  .content {
+    padding: 24px 28px 32px;
+    min-height: 200px;
+  }
+
+  .line {
+    line-height: 1.75;
+    font-size: 13.5px;
+    white-space: pre;
+  }
+
+  .spacer { height: 6px; }
+
+  .prompt   { color: #3fb950; }
+  .cmd      { color: #e6edf3; }
+  .comment  { color: #8b949e; }
+  .success  { color: #3fb950; }
+  .warning  { color: #d29922; }
+  .info     { color: #58a6ff; }
+  .rare     { color: #c678dd; font-weight: 700; }
+  .epic     { color: #f0883e; font-weight: 700; }
+  .legendary{ color: #ffd700; font-weight: 700; }
+  .hp       { color: #f87171; }
+  .mana     { color: #60a5fa; }
+  .xp       { color: #34d399; }
+  .stat     { color: #a3e635; }
+
+  .cursor {
+    display: inline-block;
+    width: 8px; height: 14px;
+    background: #58a6ff;
+    vertical-align: middle;
+    animation: blink 1s step-end infinite;
+  }
+
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .banner-box {
+    color: #f0883e;
+    font-size: 11.5px;
+    line-height: 1.35;
+    margin: 4px 0 6px;
+  }
+
+  .creeper-box {
+    color: #3fb950;
+    font-size: 13px;
+    line-height: 1.4;
+    margin: 4px 0;
+  }
+</style>
+</head>
+<body>
+<div class="terminal">
+  <div class="titlebar">
+    <span class="titlebar-text">alex@birthday ~ bash</span>
+    <div class="win-btn">&#x2013;</div>
+    <div class="win-btn">&#x25A1;</div>
+    <div class="win-btn close">&#x2715;</div>
+  </div>
+  <div class="content" id="output"></div>
+</div>
+
+<script>
+const output = document.getElementById('output');
+
+// ── helpers ──────────────────────────────────────────────────────────────────
+
+function addSpacer() {
+  const d = document.createElement('div');
+  d.className = 'spacer';
+  output.appendChild(d);
+}
+
+function addLine(text, cls) {
+  const d = document.createElement('div');
+  d.className = 'line';
+  if (cls) {
+    const s = document.createElement('span');
+    s.className = cls;
+    s.textContent = text;
+    d.appendChild(s);
+  } else {
+    d.textContent = text;
+  }
+  output.appendChild(d);
+  output.scrollTop = output.scrollHeight;
+  return d;
+}
+
+function addPre(lines, cls) {
+  const pre = document.createElement('pre');
+  pre.className = cls + ' line';
+  pre.textContent = lines.join('\n');
+  output.appendChild(pre);
+  output.scrollTop = output.scrollHeight;
+}
+
+// typewrite into a freshly created line, returns promise
+function typewriteLine(text, promptCls, textCls, speed = 36) {
+  return new Promise(resolve => {
+    const d = document.createElement('div');
+    d.className = 'line';
+
+    const ps = document.createElement('span');
+    ps.className = promptCls;
+    ps.textContent = '$ ';
+    d.appendChild(ps);
+
+    const ts = document.createElement('span');
+    ts.className = textCls;
+    d.appendChild(ts);
+    output.appendChild(d);
+
+    let i = 0;
+    function tick() {
+      if (i < text.length) {
+        ts.textContent += text[i++];
+        output.scrollTop = output.scrollHeight;
+        setTimeout(tick, speed);
+      } else {
+        resolve();
+      }
+    }
+    tick();
+  });
+}
+
+function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function addCursor() {
+  const d = document.createElement('div');
+  d.className = 'line';
+  const ps = document.createElement('span');
+  ps.className = 'prompt';
+  ps.textContent = '$ ';
+  const c = document.createElement('span');
+  c.className = 'cursor';
+  d.appendChild(ps);
+  d.appendChild(c);
+  output.appendChild(d);
+}
+
+// ── content ───────────────────────────────────────────────────────────────────
+
+const banner = [
+  ' ██╗  ██╗ █████╗ ██████╗ ██████╗ ██╗   ██╗',
+  ' ██║  ██║██╔══██╗██╔══██╗██╔══██╗╚██╗ ██╔╝',
+  ' ███████║███████║██████╔╝██████╔╝ ╚████╔╝ ',
+  ' ██╔══██║██╔══██║██╔═══╝ ██╔═══╝   ╚██╔╝  ',
+  ' ██║  ██║██║  ██║██║     ██║        ██║   ',
+  ' ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝        ╚═╝   ',
+  '',
+  ' ██████╗ ██╗██████╗ ████████╗██╗  ██╗██████╗  █████╗ ██╗   ██╗',
+  ' ██╔══██╗██║██╔══██╗╚══██╔══╝██║  ██║██╔══██╗██╔══██╗╚██╗ ██╔╝',
+  ' ██████╔╝██║██████╔╝   ██║   ███████║██║  ██║███████║ ╚████╔╝ ',
+  ' ██╔══██╗██║██╔══██╗   ██║   ██╔══██║██║  ██║██╔══██║  ╚██╔╝  ',
+  ' ██████╔╝██║██║  ██║   ██║   ██║  ██║██████╔╝██║  ██║   ██║   ',
+  ' ╚═════╝ ╚═╝╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝╚═════╝ ╚═╝  ╚═╝   ╚═╝   ',
+];
+
+// ── main sequence ─────────────────────────────────────────────────────────────
+
+async function run() {
+
+  addLine('Last login: Today  —  welcome back, hero.', 'comment');
+  await wait(500);
+  addSpacer();
+
+  // — git log ————————————————————————————————————————————
+  await typewriteLine('git log --oneline --author="Universe" --since="your birthday"', 'prompt', 'cmd');
+  await wait(400);
+  addSpacer();
+
+  addLine('a1b2c3d  feat(alex): add 1 year of experience       +2500 XP', 'success');
+  await wait(220);
+  addLine('e4f5g6h  fix(bugs): squash unnecessary life-errors           ', 'success');
+  await wait(220);
+  addLine('7i8j9k0  feat(friends): strengthen existing connections      ', 'success');
+  await wait(220);
+  addLine('l1m2n3o  feat(happiness): ship more moments worth remembering', 'success');
+  await wait(400);
+  addSpacer();
+
+  // — git commit ————————————————————————————————————————————
+  await typewriteLine('git commit -m "feat(alex): turn +1 year into +1 level --no-verify"', 'prompt', 'cmd');
+  await wait(400);
+  addSpacer();
+
+  addLine('[main 🎂] feat(alex): turn +1 year into +1 level --no-verify', 'warning');
+  await wait(200);
+  addLine(' 1 file changed, infinite memories added, 0 regrets', 'comment');
+  await wait(500);
+  addSpacer();
+
+  // — player stats ————————————————————————————————————————————
+  await typewriteLine('alex --show-stats', 'prompt', 'cmd');
+  await wait(500);
+  addSpacer();
+
+  addLine('┌─────────────────────────────────────────────┐', 'info');
+  addLine('│          PLAYER: Alex  │  LEVEL UP! 🎉       │', 'info');
+  addLine('├─────────────────────────────────────────────┤', 'info');
+  await wait(120);
+  addLine('│  ❤  HP         ████████████████░░  +15 MAX   │', 'hp');
+  await wait(120);
+  addLine('│  💧 MANA       █████████████████░  +20 MAX   │', 'mana');
+  await wait(120);
+  addLine('│  ⭐ XP         ██████████████████  +2500     │', 'xp');
+  await wait(120);
+  addLine('│  ⚡ SPEED      ████████████░░░░░░  BUFFED    │', 'stat');
+  await wait(120);
+  addLine('│  🛡  RESILIENCE ███████████████░░░  +10       │', 'stat');
+  await wait(120);
+  addLine('│  🍀 LUCK       ██████████████████  MAXED     │', 'legendary');
+  addLine('└─────────────────────────────────────────────┘', 'info');
+  await wait(600);
+  addSpacer();
+
+  // — loot drop ————————————————————————————————————————————
+  await typewriteLine('alex --open-birthday-loot', 'prompt', 'cmd');
+  await wait(600);
+  addSpacer();
+
+  addLine('[ LOOT DROP ] ✨ Birthday Chest opened!', 'warning');
+  await wait(300);
+  addLine('  ► [RARE]      Scroll of Good Health              x1', 'rare');
+  await wait(250);
+  addLine('  ► [EPIC]      Amulet of Great Moments            x1', 'epic');
+  await wait(250);
+  addLine('  ► [LEGENDARY] Ring of Legendary Loot Drop       x1', 'legendary');
+  await wait(250);
+  addLine('  ► [LEGENDARY] Potion of Max Happiness            x1', 'legendary');
+  await wait(250);
+  addLine('  ► [LEGENDARY] Blessing of Deep Sleep (baby DLC) x1', 'legendary');
+  await wait(500);
+  addSpacer();
+
+  addLine('  NOTE: "baby DLC" detected — Sleep stat temporarily debuffed.', 'comment');
+  addLine('        Patch incoming. Hang in there, dad. 💙', 'comment');
+  await wait(600);
+  addSpacer();
+
+  // — banner ————————————————————————————————————————————
+  await typewriteLine('echo $BIRTHDAY_MESSAGE', 'prompt', 'cmd');
+  await wait(600);
+  addSpacer();
+
+  addPre(banner, 'banner-box');
+  await wait(300);
+  addLine('                      🎂  A L E X  🎂', 'legendary');
+  await wait(600);
+  addSpacer();
+
+  addLine('✓ All tests passed.', 'success');
+  await wait(180);
+  addLine('✓ Build successful.', 'success');
+  await wait(180);
+  addLine('✓ Deployment to production complete.', 'success');
+  await wait(400);
+  addSpacer();
+
+  addCursor();
+}
+
+run();
+</script>
+</body>
+</html>
