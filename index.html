@@ -6,7 +6,6 @@
 <title>Happy Birthday, Alex</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap');
-
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
@@ -25,27 +24,24 @@
     border: 1px solid #30363d;
     border-radius: 10px;
     overflow: hidden;
-    box-shadow: 0 0 40px rgba(88, 166, 255, 0.08);
+    box-shadow: 0 0 40px rgba(88,166,255,0.08);
   }
 
   .titlebar {
     background: #21262d;
-    padding: 12px 16px;
+    padding: 0 0 0 16px;
     display: flex;
     align-items: center;
-    gap: 8px;
     border-bottom: 1px solid #30363d;
+    height: 36px;
   }
 
-  .titlebar-text { color: #8b949e; font-size: 12px; flex: 1; text-align: center; }
+  .titlebar-text { color: #8b949e; font-size: 12px; flex: 1; }
 
   .win-btn {
-    width: 46px; height: 100%;
+    width: 46px; height: 36px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 12px; color: #8b949e;
-    cursor: default;
-    transition: background 0.15s;
-    margin: -12px 0;
+    color: #8b949e; font-size: 13px; cursor: default;
   }
   .win-btn:hover { background: #30363d; }
   .win-btn.close:hover { background: #e81123; color: #fff; }
@@ -70,43 +66,6 @@
 
   .spacer { height: 6px; }
 
-  .prompt   { color: #3fb950; }
-  .cmd      { color: #e6edf3; }
-  .comment  { color: #8b949e; }
-  .success  { color: #3fb950; }
-  .warning  { color: #d29922; }
-  .info     { color: #58a6ff; }
-  .rare     { color: #c678dd; font-weight: 700; }
-  .epic     { color: #f0883e; font-weight: 700; }
-  .legendary{ color: #ffd700; font-weight: 700; }
-  .hp       { color: #f87171; }
-  .mana     { color: #60a5fa; }
-  .xp       { color: #34d399; }
-  .stat     { color: #a3e635; }
-
-  .cursor {
-    display: inline-block;
-    width: 8px; height: 14px;
-    background: #58a6ff;
-    vertical-align: middle;
-    animation: blink 1s step-end infinite;
-  }
-
-  @keyframes blink { 50% { opacity: 0; } }
-
-  .banner-box {
-    color: #f0883e;
-    font-size: 11.5px;
-    line-height: 1.35;
-    margin: 4px 0 6px;
-  }
-
-  .creeper-box {
-    color: #3fb950;
-    font-size: 13px;
-    line-height: 1.4;
-    margin: 4px 0;
-  }
   .countdown-bar {
     text-align: center;
     padding: 10px 16px 14px;
@@ -115,11 +74,16 @@
     border-top: 1px solid #30363d;
     letter-spacing: 0.05em;
   }
+  .countdown-bar span { color: #f87171; font-weight: 700; }
 
-  .countdown-bar span {
-    color: #f87171;
-    font-weight: 700;
+  .cursor {
+    display: inline-block;
+    width: 8px; height: 14px;
+    background: #58a6ff;
+    vertical-align: middle;
+    animation: blink 1s step-end infinite;
   }
+  @keyframes blink { 50% { opacity: 0; } }
 </style>
 </head>
 <body>
@@ -132,14 +96,36 @@
   </div>
   <div class="content" id="output"></div>
   <div class="countdown-bar" id="countdown-bar">
-    ⏳ This message self-destructs in <span id="countdown-timer">--:--:--</span>
+    &#x23F3; This message self-destructs in <span id="countdown-timer">--:--:--</span>
   </div>
 </div>
 
 <script>
 const output = document.getElementById('output');
 
-// ── helpers ──────────────────────────────────────────────────────────────────
+const BANNER = [
+  ' \u2588\u2588\u2557  \u2588\u2588\u2557 \u2588\u2588\u2588\u2588\u2588\u2557\u2588\u2588\u2588\u2588\u2588\u2588\u2557 \u2588\u2588\u2588\u2588\u2588\u2588\u2557 \u2588\u2588\u2557   \u2588\u2588\u2557',
+  ' \u2588\u2588\u2551  \u2588\u2588\u2551\u2588\u2588\u2554\u2550\u2550\u2588\u2588\u2557\u2588\u2588\u2554\u2550\u2550\u2588\u2588\u2557\u2588\u2588\u2554\u2550\u2550\u2588\u2588\u2557\u255a\u2588\u2588\u2557 \u2588\u2588\u2554\u255d',
+  ' \u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2551\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2551\u2588\u2588\u2588\u2588\u2588\u2588\u2554\u255d\u2588\u2588\u2588\u2588\u2588\u2588\u2554\u255d \u255a\u2588\u2588\u2588\u2588\u2554\u255d ',
+  ' \u2588\u2588\u2554\u2550\u2550\u2588\u2588\u2551\u2588\u2588\u2554\u2550\u2550\u2588\u2588\u2551\u2588\u2588\u2554\u2550\u2550\u2550\u255d \u2588\u2588\u2554\u2550\u2550\u2550\u255d   \u255a\u2588\u2588\u2554\u255d  ',
+  ' \u2588\u2588\u2551  \u2588\u2588\u2551\u2588\u2588\u2551  \u2588\u2588\u2551\u2588\u2588\u2551     \u2588\u2588\u2551        \u2588\u2588\u2551   ',
+  ' \u255a\u2550\u255d  \u255a\u2550\u255d\u255a\u2550\u255d  \u255a\u2550\u255d\u255a\u2550\u255d     \u255a\u2550\u255d        \u255a\u2550\u255d   ',
+  '',
+  ' \u2588\u2588\u2588\u2588\u2588\u2588\u2557 \u2588\u2588\u2557\u2588\u2588\u2588\u2588\u2588\u2588\u2557 \u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2557\u2588\u2588\u2557  \u2588\u2588\u2557\u2588\u2588\u2588\u2588\u2588\u2588\u2557  \u2588\u2588\u2588\u2588\u2588\u2557 \u2588\u2588\u2557   \u2588\u2588\u2557',
+  ' \u2588\u2588\u2554\u2550\u2550\u2588\u2588\u2557\u2588\u2588\u2551\u2588\u2588\u2554\u2550\u2550\u2588\u2588\u2557\u255a\u2550\u2550\u2588\u2588\u2554\u2550\u2550\u255d\u2588\u2588\u2551  \u2588\u2588\u2551\u2588\u2588\u2554\u2550\u2550\u2588\u2588\u2557\u2588\u2588\u2554\u2550\u2550\u2588\u2588\u2557\u255a\u2588\u2588\u2557 \u2588\u2588\u2554\u255d',
+  ' \u2588\u2588\u2588\u2588\u2588\u2588\u2554\u255d\u2588\u2588\u2551\u2588\u2588\u2588\u2588\u2588\u2588\u2554\u255d   \u2588\u2588\u2551   \u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2551\u2588\u2588\u2551  \u2588\u2588\u2551\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2551 \u255a\u2588\u2588\u2588\u2588\u2554\u255d ',
+  ' \u2588\u2588\u2554\u2550\u2550\u2588\u2588\u2557\u2588\u2588\u2551\u2588\u2588\u2554\u2550\u2550\u2588\u2588\u2557   \u2588\u2588\u2551   \u2588\u2588\u2554\u2550\u2550\u2588\u2588\u2551\u2588\u2588\u2551  \u2588\u2588\u2551\u2588\u2588\u2554\u2550\u2550\u2588\u2588\u2551  \u255a\u2588\u2588\u2554\u255d  ',
+  ' \u2588\u2588\u2588\u2588\u2588\u2588\u2554\u255d\u2588\u2588\u2551\u2588\u2588\u2551  \u2588\u2588\u2551   \u2588\u2588\u2551   \u2588\u2588\u2551  \u2588\u2588\u2551\u2588\u2588\u2588\u2588\u2588\u2588\u2554\u255d\u2588\u2588\u2551  \u2588\u2588\u2551   \u2588\u2588\u2551   ',
+  ' \u255a\u2550\u2550\u2550\u2550\u2550\u255d \u255a\u2550\u255d\u255a\u2550\u255d  \u255a\u2550\u255d   \u255a\u2550\u255d   \u255a\u2550\u255d  \u255a\u2550\u255d\u255a\u2550\u2550\u2550\u2550\u2550\u255d \u255a\u2550\u255d  \u255a\u2550\u255d   \u255a\u2550\u255d   ',
+];
+
+const C = {
+  prompt:'#3fb950', cmd:'#e6edf3', comment:'#8b949e', success:'#3fb950',
+  warning:'#d29922', info:'#58a6ff', rare:'#c678dd', epic:'#f0883e',
+  legendary:'#ffd700', hp:'#f87171', mana:'#60a5fa', xp:'#34d399', stat:'#a3e635'
+};
+
+function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 function addSpacer() {
   const d = document.createElement('div');
@@ -150,64 +136,54 @@ function addSpacer() {
 function addLine(text, cls) {
   const d = document.createElement('div');
   d.className = 'line';
-  if (cls) {
-    const s = document.createElement('span');
-    s.className = cls;
-    s.textContent = text;
-    d.appendChild(s);
-  } else {
-    d.textContent = text;
-  }
+  const s = document.createElement('span');
+  s.style.color = C[cls] || '#e6edf3';
+  if (['rare','epic','legendary'].includes(cls)) s.style.fontWeight = '700';
+  s.textContent = text;
+  d.appendChild(s);
   output.appendChild(d);
   output.scrollTop = output.scrollHeight;
-  return d;
 }
 
-function addPre(lines, cls) {
+function addPre(lines, color, fontSize) {
   const pre = document.createElement('pre');
-  pre.className = cls + ' line';
+  pre.className = 'line';
+  pre.style.color = color;
+  if (fontSize) pre.style.fontSize = fontSize;
   pre.textContent = lines.join('\n');
   output.appendChild(pre);
   output.scrollTop = output.scrollHeight;
 }
 
-// typewrite into a freshly created line, returns promise
-function typewriteLine(text, promptCls, textCls, speed = 36) {
+function typewriteLine(text, speed) {
   return new Promise(resolve => {
     const d = document.createElement('div');
     d.className = 'line';
-
     const ps = document.createElement('span');
-    ps.className = promptCls;
+    ps.style.color = C.prompt;
     ps.textContent = '$ ';
-    d.appendChild(ps);
-
     const ts = document.createElement('span');
-    ts.className = textCls;
+    ts.style.color = C.cmd;
+    d.appendChild(ps);
     d.appendChild(ts);
     output.appendChild(d);
-
     let i = 0;
     function tick() {
       if (i < text.length) {
         ts.textContent += text[i++];
         output.scrollTop = output.scrollHeight;
-        setTimeout(tick, speed);
-      } else {
-        resolve();
-      }
+        setTimeout(tick, speed || 36);
+      } else resolve();
     }
     tick();
   });
 }
 
-function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
-
 function addCursor() {
   const d = document.createElement('div');
   d.className = 'line';
   const ps = document.createElement('span');
-  ps.className = 'prompt';
+  ps.style.color = C.prompt;
   ps.textContent = '$ ';
   const c = document.createElement('span');
   c.className = 'cursor';
@@ -216,34 +192,14 @@ function addCursor() {
   output.appendChild(d);
 }
 
-// ── content ───────────────────────────────────────────────────────────────────
-
-const banner = [
-  ' ██╗  ██╗ █████╗ ██████╗ ██████╗ ██╗   ██╗',
-  ' ██║  ██║██╔══██╗██╔══██╗██╔══██╗╚██╗ ██╔╝',
-  ' ███████║███████║██████╔╝██████╔╝ ╚████╔╝ ',
-  ' ██╔══██║██╔══██║██╔═══╝ ██╔═══╝   ╚██╔╝  ',
-  ' ██║  ██║██║  ██║██║     ██║        ██║   ',
-  ' ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝        ╚═╝   ',
-  '',
-  ' ██████╗ ██╗██████╗ ████████╗██╗  ██╗██████╗  █████╗ ██╗   ██╗',
-  ' ██╔══██╗██║██╔══██╗╚══██╔══╝██║  ██║██╔══██╗██╔══██╗╚██╗ ██╔╝',
-  ' ██████╔╝██║██████╔╝   ██║   ███████║██║  ██║███████║ ╚████╔╝ ',
-  ' ██╔══██╗██║██╔══██╗   ██║   ██╔══██║██║  ██║██╔══██║  ╚██╔╝  ',
-  ' ██████╔╝██║██║  ██║   ██║   ██║  ██║██████╔╝██║  ██║   ██║   ',
-  ' ╚═════╝ ╚═╝╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═╝╚═════╝ ╚═╝  ╚═╝   ╚═╝   ',
-];
-
-// ── main sequence ─────────────────────────────────────────────────────────────
+// ── Birthday sequence ─────────────────────────────────────────────────────────
 
 async function run() {
-
-  addLine('Last login: Today  —  welcome back, hero.', 'comment');
+  addLine('Last login: Today  --  welcome back, hero.', 'comment');
   await wait(500);
   addSpacer();
 
-  // — git log ————————————————————————————————————————————
-  await typewriteLine('git log --oneline --author="Universe" --since="your birthday"', 'prompt', 'cmd');
+  await typewriteLine('git log --oneline --author="Universe" --since="your birthday"');
   await wait(400);
   addSpacer();
 
@@ -257,179 +213,132 @@ async function run() {
   await wait(400);
   addSpacer();
 
-  // — git commit ————————————————————————————————————————————
-  await typewriteLine('git commit -m "feat(alex): turn +1 year into +1 level --no-verify"', 'prompt', 'cmd');
+  await typewriteLine('git commit -m "feat(alex): turn +1 year into +1 level --no-verify"');
   await wait(400);
   addSpacer();
 
-  addLine('[main 🎂] feat(alex): turn +1 year into +1 level --no-verify', 'warning');
+  addLine('[main \uD83C\uDF82] feat(alex): turn +1 year into +1 level --no-verify', 'warning');
   await wait(200);
   addLine(' 1 file changed, infinite memories added, 0 regrets', 'comment');
   await wait(500);
   addSpacer();
 
-  // — player stats ————————————————————————————————————————————
-  await typewriteLine('alex --show-stats', 'prompt', 'cmd');
+  await typewriteLine('alex --show-stats');
   await wait(500);
   addSpacer();
 
-  addLine('┌─────────────────────────────────────────────┐', 'info');
-  addLine('│          PLAYER: Alex  │  LEVEL UP! 🎉       │', 'info');
-  addLine('├─────────────────────────────────────────────┤', 'info');
+  addLine('\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510', 'info');
+  addLine('\u2502          PLAYER: Alex  \u2502  LEVEL UP! \uD83C\uDF89       \u2502', 'info');
+  addLine('\u251c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2524', 'info');
   await wait(120);
-  addLine('│  ❤  HP         ████████████████░░  +15 MAX   │', 'hp');
+  addLine('\u2502  \u2764  HP         \u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2591\u2591  +15 MAX   \u2502', 'hp');
   await wait(120);
-  addLine('│  💧 MANA       █████████████████░  +20 MAX   │', 'mana');
+  addLine('\u2502  \uD83D\uDCA7 MANA       \u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2591  +20 MAX   \u2502', 'mana');
   await wait(120);
-  addLine('│  ⭐ XP         ██████████████████  +2500     │', 'xp');
+  addLine('\u2502  \u2B50 XP         \u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588  +2500     \u2502', 'xp');
   await wait(120);
-  addLine('│  ⚡ SPEED      ████████████░░░░░░  BUFFED    │', 'stat');
+  addLine('\u2502  \u26A1 SPEED      \u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2591\u2591\u2591\u2591\u2591\u2591  BUFFED    \u2502', 'stat');
   await wait(120);
-  addLine('│  🛡  RESILIENCE ███████████████░░░  +10       │', 'stat');
+  addLine('\u2502  \uD83D\uDEE1  RESILIENCE \u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2591\u2591\u2591  +10       \u2502', 'stat');
   await wait(120);
-  addLine('│  🍀 LUCK       ██████████████████  MAXED     │', 'legendary');
-  addLine('└─────────────────────────────────────────────┘', 'info');
+  addLine('\u2502  \uD83C\uDF40 LUCK       \u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2588  MAXED     \u2502', 'legendary');
+  addLine('\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518', 'info');
   await wait(600);
   addSpacer();
 
-  // — loot drop ————————————————————————————————————————————
-  await typewriteLine('alex --open-birthday-loot', 'prompt', 'cmd');
+  await typewriteLine('alex --open-birthday-loot');
   await wait(600);
   addSpacer();
 
-  addLine('[ LOOT DROP ] ✨ Birthday Chest opened!', 'warning');
+  addLine('[ LOOT DROP ] \u2728 Birthday Chest opened!', 'warning');
   await wait(300);
-  addLine('  ► [RARE]      Scroll of Good Health              x1', 'rare');
+  addLine('  \u25BA [RARE]      Scroll of Good Health              x1', 'rare');
   await wait(250);
-  addLine('  ► [EPIC]      Amulet of Great Moments            x1', 'epic');
+  addLine('  \u25BA [EPIC]      Amulet of Great Moments            x1', 'epic');
   await wait(250);
-  addLine('  ► [LEGENDARY] Ring of Legendary Loot Drop       x1', 'legendary');
+  addLine('  \u25BA [LEGENDARY] Ring of Legendary Loot Drop       x1', 'legendary');
   await wait(250);
-  addLine('  ► [LEGENDARY] Potion of Max Happiness            x1', 'legendary');
+  addLine('  \u25BA [LEGENDARY] Potion of Max Happiness            x1', 'legendary');
   await wait(250);
-  addLine('  ► [LEGENDARY] Blessing of Deep Sleep (baby DLC) x1', 'legendary');
+  addLine('  \u25BA [LEGENDARY] Blessing of Deep Sleep (baby DLC) x1', 'legendary');
   await wait(500);
   addSpacer();
 
-  addLine('  NOTE: "baby DLC" detected — Sleep stat temporarily debuffed.', 'comment');
-  addLine('        Patch incoming. Hang in there, dad. 💙', 'comment');
+  addLine('  NOTE: "baby DLC" detected -- Sleep stat temporarily debuffed.', 'comment');
+  addLine('        Patch incoming. Hang in there, dad. \uD83D\uDC99', 'comment');
   await wait(600);
   addSpacer();
 
-  // — banner ————————————————————————————————————————————
-  await typewriteLine('echo $BIRTHDAY_MESSAGE', 'prompt', 'cmd');
+  await typewriteLine('echo $BIRTHDAY_MESSAGE');
   await wait(600);
   addSpacer();
 
-  addPre(banner, 'banner-box');
+  addPre(BANNER, '#f0883e', '7px');
   await wait(300);
-  addLine('                      🎂  A L E X  🎂', 'legendary');
+  addLine('                      \uD83C\uDF82  A L E X  \uD83C\uDF82', 'legendary');
   await wait(600);
   addSpacer();
 
-  addLine('✓ All tests passed.', 'success');
+  addLine('\u2713 All tests passed.', 'success');
   await wait(180);
-  addLine('✓ Build successful.', 'success');
+  addLine('\u2713 Build successful.', 'success');
   await wait(180);
-  addLine('✓ Deployment to production complete.', 'success');
+  addLine('\u2713 Deployment to production complete.', 'success');
   await wait(400);
   addSpacer();
-
-  addCursor();
+  addLine('  With love,  Irina & Walter  \uD83D\uDC99', 'legendary');
+  await wait(400);
   addSpacer();
-  addLine('  With love,  Irina & Walter  💙', 'legendary');
+  addCursor();
 }
 
-run();
+// ── Self-destruct sequence ────────────────────────────────────────────────────
 
-// ── self-destruct ─────────────────────────────────────────────────────────────
+async function selfDestruct() {
+  const bar = document.getElementById('countdown-bar');
+  if (bar) bar.style.display = 'none';
 
-function msUntilMidnight() {
-  const now = new Date();
-  const midnight = new Date(now);
-  midnight.setHours(24, 0, 0, 0);
-  return midnight - now;
+  addSpacer();
+  await wait(800);
+  await typewriteLine('sudo birthday --self-destruct', 50);
+  await wait(800);
+  addSpacer();
+  addLine('[WARNING] Expiry date exceeded.', 'warning');
+  await wait(1600);
+  addLine('[WARNING] Self-destruction activated.', 'warning');
+  await wait(1600);
+  addLine('[WARNING] Initiating sequence...', 'warning');
+  await wait(1200);
+  addSpacer();
+  await wait(800);
+  addLine('3...', 'hp');
+  await wait(1400);
+  addLine('2...', 'hp');
+  await wait(1400);
+  addLine('1...', 'hp');
+  await wait(1600);
+  addSpacer();
+  addLine('[OK] Memory wiped. Hope it was a good one, Alex. \uD83C\uDF82', 'success');
+  await wait(2000);
+  addLine('[OK] See you next year.', 'comment');
+  await wait(3000);
+
+  document.body.innerHTML = '<div style="background:#0d1117;height:100vh;display:flex;align-items:center;justify-content:center;font-family:monospace;color:#8b949e;font-size:14px;">// nothing to see here</div>';
 }
 
-function selfDestruct() {
-  const content = document.getElementById('output');
-  const lines = [
-    { text: '', delay: 0 },
-    { text: '$ sudo birthday --self-destruct', cls: 'warning', delay: 200 },
-    { text: '', delay: 700 },
-    { text: '[WARNING] This message was valid for one day only.', cls: 'warning', delay: 900 },
-    { text: '[WARNING] Initiating self-destruct sequence...', cls: 'warning', delay: 1400 },
-    { text: '', delay: 1900 },
-    { text: '3...', cls: 'hp', delay: 2100 },
-    { text: '2...', cls: 'hp', delay: 2800 },
-    { text: '1...', cls: 'hp', delay: 3500 },
-    { text: '', delay: 4000 },
-    { text: '[OK] Memory wiped. Hope it was a good one, Alex. 🎂', cls: 'success', delay: 4200 },
-    { text: '[OK] See you next year.', cls: 'comment', delay: 4900 },
-  ];
+// ── Expiry logic ──────────────────────────────────────────────────────────────
 
-  lines.forEach(({ text, cls, delay }) => {
-    setTimeout(() => {
-      addLine(text, cls || '');
-      output.scrollTop = output.scrollHeight;
-    }, delay);
-  });
-
-  // After animation: blank the page
-  setTimeout(() => {
-    document.body.innerHTML = '<div style="background:#0d1117;height:100vh;display:flex;align-items:center;justify-content:center;font-family:monospace;color:#8b949e;font-size:14px;">// nothing to see here</div>';
-  }, 7000);
-}
-
-// Hard expiry: 17 June 2026 00:00:00 local time
 const EXPIRY = new Date('2026-06-17T00:00:00');
 
-function isExpired() {
-  return new Date() >= EXPIRY;
-}
-
-// If already past expiry on page load, run expired animation
-if (isExpired()) {
-  // Show terminal with frozen countdown at 00:00:00 then self-destruct
-  document.addEventListener('DOMContentLoaded', function() {});
-  const bar = document.getElementById('countdown-bar');
+if (new Date() >= EXPIRY) {
+  // Page opened after birthday -- show frozen timer then self-destruct
   const timerEl = document.getElementById('countdown-timer');
   if (timerEl) timerEl.textContent = '00:00:00';
-
-  setTimeout(function() {
-    addLine('', '');
-    addLine('$ sudo birthday --self-destruct', 'warning');
-  }, 300);
-  setTimeout(function() {
-    addLine('', '');
-    addLine('[WARNING] Expiry date exceeded. Self-destruction activated.', 'warning');
-  }, 1000);
-  setTimeout(function() {
-    addLine('[WARNING] Initiating sequence...', 'warning');
-  }, 1800);
-  setTimeout(function() {
-    addLine('', '');
-    addLine('3...', 'hp');
-  }, 2400);
-  setTimeout(function() {
-    addLine('2...', 'hp');
-  }, 3100);
-  setTimeout(function() {
-    addLine('1...', 'hp');
-  }, 3800);
-  setTimeout(function() {
-    addLine('', '');
-    addLine('[OK] Memory wiped. Hope it was a good one, Alex. 🎂', 'success');
-  }, 4400);
-  setTimeout(function() {
-    addLine('[OK] See you next year.', 'comment');
-  }, 5100);
-  setTimeout(function() {
-    if (bar) bar.style.display = 'none';
-    document.body.innerHTML = '<div style="background:#0d1117;height:100vh;display:flex;align-items:center;justify-content:center;font-family:monospace;color:#8b949e;font-size:14px;">// nothing to see here</div>';
-  }, 7500);
+  selfDestruct();
 } else {
-  // Live countdown display
+  // Birthday is today -- run the show and count down to midnight
+  run();
+
   function updateCountdown() {
     const ms = EXPIRY - new Date();
     if (ms <= 0) return;
@@ -442,12 +351,10 @@ if (isExpired()) {
   }
 
   updateCountdown();
-  const countdownInterval = setInterval(updateCountdown, 1000);
+  const iv = setInterval(updateCountdown, 1000);
 
   setTimeout(function() {
-    clearInterval(countdownInterval);
-    const bar = document.getElementById('countdown-bar');
-    if (bar) bar.style.display = 'none';
+    clearInterval(iv);
     selfDestruct();
   }, EXPIRY - new Date());
 }
